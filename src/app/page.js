@@ -1,101 +1,97 @@
-import Image from "next/image";
+'use client'
+import {useState, useEffect} from 'react';
+import {Elements, CardNumberElement, CardElement, PaymentElement, useStripe, useElements} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
+
+import IconCheck from './components/IconCheck';
+import IconMembership from './components/IconMembership';
+import IconDoubleArrow from './components/IconDoubleArrow';
+
+const stripePromise = loadStripe('pk_test_5HeOS2ywIXQnlFV8yKxSe6ZJ');
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [clientSecret, setClientSecret] = useState(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount: 1000 }),
+    })
+      .then(res => res.json())
+      .then(data => setClientSecret(data.clientSecret));
+  }, []);
+
+  const options = {
+    clientSecret,
+    externalPaymentMethodTypes: [],
+    fields: {
+      billingDetails: {
+        address: {
+          country: 'never',
+          postalCode: 'never'
+        }
+      }
+    },
+  };
+
+  const foptions = {
+    fields: {
+      address: {
+        mode: 'billing',
+        fields: {
+          country: 'hidden',
+          postalCode: 'hidden'
+        }
+      }
+    }
+  };
+
+  if (!clientSecret) return <div>Loading...</div>;
+
+  return (
+    <main className="flex flex-col items-center">
+      <div className="bg-gray-800 text-white text-sm text-center py-1.5 px-4 rounded-full mb-2">
+        Best Deal At The Expo
+      </div>
+      <h1 className="text-white text-3xl font-black text-center leading-none mb-4">Join Our Membership <br />& Save Up To $885</h1>
+      <ul className="text-white text-base mb-5 leading-tight space-y-1">
+        <li className='flex items-center gap-2'>
+          <IconCheck /> 
+          Instant $85 saving in coupons
+        </li>
+        <li className='flex items-center gap-2'>
+          <IconCheck /> 
+          Save with 5 Brands At the Expo
+        </li>
+        <li className='flex items-center gap-2'>
+          <IconCheck /> 
+          Exclusive deals & perks for a year
+        </li>
+      </ul>
+      <div className="w-full py-4 px-3 bg-white rounded-xl gap-2 text-left">
+        <div className="flex gap-2 items-center border-b border-gray-200 border-b-style-dashed pb-5 mb-5">
+          <IconMembership />
+          <h2 className="text-base font-bold leading-none grow">Gold Membership</h2>
+          <div className="flex gap-1 text-sm">
+            <span className="opacity-40">Save $85!</span>
+            <span className="font-bold">$10/year</span>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <Elements stripe={stripePromise} options={options}>
+          <form>
+            <PaymentElement options={foptions}/>
+            {/* <CardElement /> */}
+            <button className="relative rounded-lg w-full bg-green mt-5 text-white p-4 font-bold">
+              <span>Get Your Coupons Now</span>
+              <IconDoubleArrow className="absolute right-4 top-1/2 -translate-y-1/2" />
+            </button>
+            <p className="text-xs text-center mt-2.5 text-gray-600">Limited Time Offer. Don’t miss out!</p>
+          </form>
+        </Elements>
+      </div>
+    </main>
   );
 }
