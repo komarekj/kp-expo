@@ -49,7 +49,16 @@ export default function Home() {
     }
   };
 
-  if (!clientSecret) return <div>Loading...</div>;
+  if (!clientSecret) {
+    return (
+      <div className="flex flex-col items-center gap-3 animate-pulse pt-6">
+        <div className="rounded-lg bg-slate-700 h-14 w-48 opacity-10 mt-1.5"></div>
+        <div className="rounded-lg bg-slate-700 h-3 w-2/3 opacity-10"></div>
+        <div className="rounded-lg bg-slate-700 h-3 w-2/3 opacity-10"></div>
+        <div className="rounded-lg bg-slate-700 h-48 w-full opacity-10"></div>
+      </div>
+    );
+  }
 
   return (
     <main className="flex flex-col items-center">
