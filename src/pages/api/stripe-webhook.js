@@ -3,13 +3,13 @@ import { nanoid } from 'nanoid'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-import dbClient from './utils/mongodb';
+import clientPromise from './utils/mongodb';
 
 /**
  * Check for duplicates
  */
 const checkDuplicate = async (id, db) => {
-  const subscription = await db.collection('subscriptions').findOne({ id: id });
+  const subscription = await db.collection('subscriptions').findOne({ userId: id });
   return subscription ? true : false;
 };
 
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
   // }
 
   // Connect DB
-  await dbClient.connect();
+  const dbClient = await clientPromise;
   const db = dbClient.db(process.env.MONGO_DB);
 
   // Check for duplicates
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
   await createeCoupons(data.id, db);
 
   // Close DB
-  await dbClient.close();
+  // await dbClient.close();
 
   res.status(200).json({ received: true });
 }

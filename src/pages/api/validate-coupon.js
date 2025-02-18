@@ -1,4 +1,4 @@
-import dbClient from './utils/mongodb';
+import clientPromise from './utils/mongodb';
 
 import { ObjectId } from 'mongodb';
 
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const couponId = ObjectId.createFromHexString(id);
 
   // Connect DB
-  await dbClient.connect();
+  const dbClient = await clientPromise;
   const db = dbClient.db(process.env.MONGO_DB);
 
   // Find the coupon

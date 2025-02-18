@@ -1,11 +1,11 @@
-import dbClient from './utils/mongodb';
+import clientPromise from './utils/mongodb';
 
 export default async function handler(req, res) {
   const { id } = req.body;
 
   try {
     // Connect DB
-    await dbClient.connect();
+    const dbClient = await clientPromise;
     const db = dbClient.db(process.env.MONGO_DB);
 
     // Find the account coupons
@@ -19,6 +19,6 @@ export default async function handler(req, res) {
     res.status(200).json({ coupons });
   } finally {
     // Close the connection
-    await dbClient.close();
+    // await dbClient.close();
   }
 }
