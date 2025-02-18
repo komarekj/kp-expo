@@ -41,10 +41,10 @@ const createeCoupons = async (id, db) => {
  */
 export default async function handler(req, res) {
   console.log(req.body);
-  const data = req.body;
+  const data = req.body.data.object;
 
   // Verify if it's the right event
-  if (data.type != 'checkout.session.completed') {
+  if (req.body.type != 'checkout.session.completed') {
     res.status(400).send('Invalid event type');
     return;
   }
