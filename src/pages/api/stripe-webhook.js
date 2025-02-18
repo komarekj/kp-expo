@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   const data = req.body;
 
   // Verify if it's the right event
-  if (data.object != 'checkout.session') {
+  if (data.type != 'checkout.session.completed') {
     res.status(400).send('Invalid event type');
     return;
   }
