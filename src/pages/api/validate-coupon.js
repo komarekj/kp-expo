@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   await db.collection('coupons').updateOne({ _id: couponId }, { $set: { used: true } });
 
   // Close the connection
-  await dbClient.close();
+  // await dbClient.close();
 
   res.status(200).json({ success: true });
 }
