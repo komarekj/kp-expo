@@ -40,7 +40,8 @@ const createeCoupons = async (id, db) => {
  * Handle the webhook
  */
 export default async function handler(req, res) {
-  const data = req.body.object;
+  console.log(req.body);
+  const data = req.body;
 
   // Verify if it's the right event
   if (data.object != 'checkout.session') {
