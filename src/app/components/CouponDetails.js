@@ -18,13 +18,6 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
     setConfirmOpen(true);
   }
 
-  const handleDialogClick = (e) => {
-    // Check if the click was on the dialog backdrop
-    if (e.target === dialogRef.current) {
-      handleCloseClick();
-    }
-  };
-
   const handleValidateConfirm = () => {
     setLoading(true);
     
@@ -56,6 +49,13 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
   }
 
   useEffect(() => {
+    const handleDialogClick = (e) => {
+      // Check if the click was on the dialog backdrop
+      if (e.target === dialogRef.current) {
+        handleCloseClick();
+      }
+    };
+
     const dialog = dialogRef.current
     if (!dialog) return
 
@@ -75,7 +75,7 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
         dialog.removeEventListener('click', handleDialogClick);
       }
     };
-  }, [coupon, handleDialogClick]);
+  }, [coupon, handleCloseClick]);
 
   return (
     <dialog 
@@ -99,7 +99,7 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
           <span className="font-bold">Location:</span> {coupon?.instructions}
         </p>
 
-        <p className="text-sm font-bold mb-1">Your {coupon?.discount} OFF Coupon:</p>
+        <p className="text-sm font-bold mb-1">Your {coupon?.gift ? '' : `${coupon?.discount} OFF `}Coupon:</p>
         <span className="mb-8 border border-dashed border-black uppercase text-3xl font-bold leading-none px-2 py-6 w-full text-center tracking-widest">
           {coupon?.code}
         </span>

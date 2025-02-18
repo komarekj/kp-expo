@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { useWindowSize } from 'react-use'
-import Confetti from 'react-confetti'
+import { useWindowSize } from 'react-use';
+import Confetti from 'react-confetti';
+import RotateLoader from "react-spinners/ClipLoader";
 
 import CouponPreview from "../components/CouponPreview"
 import CouponDetail from "../components/CouponDetails"
@@ -32,8 +33,12 @@ export default function Page() {
 
   // Fetch user's coupons
   useEffect(() => {
-    const fetchCoupons = async () => {
+    const fetchCoupons = async (retries = 0) => {
       if (!userId) return;
+      if (retries >= 10) {
+        setFailed(true);
+        return;
+      }
 
       try {
         const response = await fetch(`/api/account`, {
@@ -56,16 +61,17 @@ export default function Page() {
 
         setCoupons(data.coupons);
       } catch (error) {
-        console.error('Failed to fetch coupons:', error);
-        setFailed(true);
+        console.error(`Failed to fetch coupons (attempt ${retries + 1}/10):`, error);
+        setTimeout(() => fetchCoupons(retries + 1), 3000);
       }
     };
 
     fetchCoupons();
   }, [userId]);
 
-  const premiumCoupons = coupons?.filter(coupon => coupon.premium);
-  const standardCoupons = coupons?.filter(coupon => !coupon.premium);
+  const premiumCoupons = coupons?.filter(coupon => coupon.premium && coupon.gift !== true);
+  const standardCoupons = coupons?.filter(coupon => !coupon.premium && coupon.gift !== true);
+  const giftCoupons = coupons?.filter(coupon => coupon.gift === true);
 
   const handleCouponClick = (coupon) => {
     setSelectedCoupon(coupon);
@@ -97,15 +103,14 @@ export default function Page() {
   if (!coupons && !failed) {
     return (
       <div className="flex flex-col items-center gap-3 animate-pulse pt-6">
-        <div className="rounded-lg bg-slate-700 h-10 w-72 opacity-10"></div>
-        <div className="rounded-lg bg-slate-700 h-4 w-full opacity-10"></div>
-        <div className="rounded-lg bg-slate-700 h-4 w-full opacity-10"></div>
-        <div className="rounded-lg bg-slate-700 h-14 w-full opacity-10 mt-8"></div>
+        <h1 className="text-white text-xl font-black text-center leading-none">We&apos;re Creating Your Coupons</h1>
+        <RotateLoader color="#fff" />
+        <div className="rounded-lg bg-slate-700 h-14 w-full opacity-10 mt-1.5"></div>
         <div className="rounded-lg bg-slate-700 h-14 w-full opacity-10"></div>
         <div className="rounded-lg bg-slate-700 h-14 w-full opacity-10"></div>
         <div className="rounded-lg bg-slate-700 h-14 w-full opacity-10"></div>
       </div>
-    )
+    );
   }
 
   if (failed) {
@@ -123,6 +128,16 @@ export default function Page() {
         <h1 className="text-white text-3xl font-black text-center leading-none mb-1.5">Your Coupons</h1>
         <p className="text-sm leading-tight max-w-72">Select a partner, walk up to their booth and give them your promo code</p>
       </div>
+
+      {giftCoupons.length > 0 && (
+        <div className="mb-5">
+          <div className="flex flex-col gap-1.5">
+            {giftCoupons.map((coupon) => (
+              <CouponPreview coupon={coupon} key={coupon._id} handleClick={() => handleCouponClick(coupon)} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {premiumCoupons.length > 0 && (
         <div className="mb-5">

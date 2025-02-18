@@ -6,7 +6,7 @@ import IconArrow from './IconArrow';
 import IconCheck from './IconCheck';
 
 export default function CouponPreview({ coupon, handleClick }) {
-  const { partner, info, discount, logo, used } = coupon;
+  const { partner, info, discount, logo, used, gift } = coupon;
 
   return (
     <button
@@ -27,7 +27,7 @@ export default function CouponPreview({ coupon, handleClick }) {
       {!used && (
         <>
           <span className="border border-dashed border-black uppercase text-sm font-bold leading-none px-2 py-1 w-20 flex justify-center">
-            {discount} OFF
+            {gift ? 'FREE' : `${discount} OFF`}
           </span>
           <span className="text-gray-300">
             <IconArrow />

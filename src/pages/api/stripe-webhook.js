@@ -29,6 +29,7 @@ const createeCoupons = async (id, db) => {
     logo: partner.logo,
     code: `${partner.prefix}-${nanoid(5).toUpperCase()}`,
     premium: partner.premium,
+    gift: partner.gift,
     used: false,
   }));
 
