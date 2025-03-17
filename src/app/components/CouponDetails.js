@@ -5,7 +5,10 @@ import { useRef, useEffect, useState } from 'react';
 import RotateLoader from "react-spinners/ClipLoader";
 
 import IconClose from './IconClose';
+import IconCheck from './IconCheck';
 import IconMap from './IconMap';
+
+const PIN = '2025';
 
 export default function CouponDetail({ coupon, onValidated, handleCloseClick }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -13,13 +16,27 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
   const [error, setError] = useState(null);
 
   const dialogRef = useRef(null);
+  const pinInputRef = useRef(null);
 
   const handleValidateClick = () => {
     setConfirmOpen(true);
-  }
+  };
+
+  const handleValidateCancel = () => {
+    setConfirmOpen(false);
+    setError(null);
+  };
 
   const handleValidateConfirm = () => {
     setLoading(true);
+
+    const pin = pinInputRef.current.value;
+
+    if (pin !== PIN) {
+      setError('Invalid PIN. Please try again.');
+      setLoading(false);
+      return;
+    }
     
     const validateCoupon = async () => {
       try {
@@ -76,6 +93,13 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
       }
     };
   }, [coupon, handleCloseClick]);
+  
+  // Effect to focus on PIN input when it becomes visible
+  useEffect(() => {
+    if (confirmOpen && pinInputRef.current) {
+      pinInputRef.current.focus();
+    }
+  }, [confirmOpen]);
 
   return (
     <dialog 
@@ -113,13 +137,26 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
             )}
 
             {confirmOpen && (
-              <button className="underline text-sm text-gray-500 focus:outline-none" onClick={handleValidateConfirm}>
-                Are you sure? Click again to confirm
-              </button>
+              <div class="flex gap-1">
+                <input 
+                  type="tel" 
+                  className="border border-gray-300 rounded-md p-2 w-36 text-center focus:outline-none" 
+                  placeholder="Enter PIN"
+                  ref={pinInputRef}
+                />
+                <button className="bg-orange text-white rounded-md flex items-center justify-center w-12 h-12" onClick={handleValidateConfirm}>
+                  <span className="sr-only">Confirm</span>
+                  <IconCheck />
+                </button>
+                <button className="bg-gray-100 text-gray-400 rounded-md flex items-center justify-center w-12 h-12" onClick={handleValidateCancel}>
+                  <span className="sr-only">Close</span>
+                  <IconClose />
+                </button>
+              </div>
             )}
 
             {error && (
-              <div className="text-sm text-red-500">{error}</div>
+              <div className="text-sm text-red-500 mt-2">{error}</div>
             )}
           </div>
         )}
