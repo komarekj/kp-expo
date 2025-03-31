@@ -137,7 +137,7 @@ export default function CouponDetail({ coupon, onValidated, handleCloseClick }) 
             )}
 
             {confirmOpen && (
-              <div class="flex gap-1">
+              <div className="flex gap-1">
                 <input 
                   type="tel" 
                   className="border border-gray-300 rounded-md p-2 w-36 text-center focus:outline-none" 

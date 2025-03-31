@@ -3,7 +3,13 @@ import { nanoid } from 'nanoid'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-import clientPromise from './utils/mongodb';
+import clientPromise from '../../utils/mongodb.js';
+import * as omnisend from '../../utils/omnisend.js';
+
+const EXPO_PRODUCT_IDS = [
+  'prod_G7IdBFVqKuotAc',
+  'prod_S2pS24wYSP7fbG',
+];
 
 /**
  * Check for duplicates
@@ -38,6 +44,28 @@ const createeCoupons = async (id, db) => {
 
 
 /**
+ * Validate if purchase contains any of the specified product IDs
+ * @param {string} sessionId - Stripe checkout session ID
+ * @returns {Promise<boolean>} True if purchase contains matching product
+ */
+export const validatePurchase = async (sessionId) => {
+  try {
+    const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, {
+      expand: ['data.price.product']
+    });
+    
+    // Return true if any item matches the specified product IDs
+    return lineItems.data.some(item => 
+      EXPO_PRODUCT_IDS.includes(item.price?.product?.id)
+    );
+  } catch (error) {
+    console.error('Error validating purchase:', error);
+    return false;
+  }
+};
+
+
+/**
  * Handle the webhook
  */
 export default async function handler(req, res) {
@@ -51,16 +79,23 @@ export default async function handler(req, res) {
   }
 
   // Verify if it's a valid event
-  // try {
-  //   const event = stripe.webhooks.constructEvent(
-  //     req.body,
-  //     req.headers['stripe-signature'],
-  //     process.env.STRIPE_WEBHOOK_SECRET
-  //   );
-  // } catch (err) {
-  //   res.status(400).send(`Webhook Error: ${err.message}`);
-  //   return;
-  // }
+  try {
+    const event = stripe.webhooks.constructEvent(
+      req.body,
+      req.headers['stripe-signature'],
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return;
+  }
+
+  // Check if purchase contains any of the specified product IDs
+  const isValidPurchase = await validatePurchase(data.id);
+  if (!isValidPurchase) {
+    res.status(200).send('Not qualified purchase');
+    return;
+  }
 
   // Connect DB
   const dbClient = await clientPromise;
@@ -87,8 +122,13 @@ export default async function handler(req, res) {
   // Create discounts
   await createeCoupons(data.id, db);
 
-  // Close DB
-  // await dbClient.close();
+  // Signup in Omnisend
+  try {
+    const { email } = data.customer_details;
+    await omnisend.signupUser(email, data.id);
+  }  catch (error) {
+    console.error('Error signing up user in Omnisend:', error);
+  }
 
   res.status(200).json({ received: true });
 }

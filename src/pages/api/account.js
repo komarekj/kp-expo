@@ -1,4 +1,4 @@
-import clientPromise from './utils/mongodb';
+import clientPromise from '../../utils/mongodb';
 
 export default async function handler(req, res) {
   const { id } = req.body;
