@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
+import { buffer } from 'micro';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -10,6 +11,13 @@ const EXPO_PRODUCT_IDS = [
   'prod_G7IdBFVqKuotAc',
   'prod_S2pS24wYSP7fbG',
 ];
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 
 /**
  * Check for duplicates
@@ -69,19 +77,14 @@ export const validatePurchase = async (sessionId) => {
  * Handle the webhook
  */
 export default async function handler(req, res) {
-  console.log(req.body);
-  const data = req.body.data.object;
-
-  // Verify if it's the right event
-  if (req.body.type != 'checkout.session.completed') {
-    res.status(400).send('Invalid event type');
-    return;
-  }
+  const rawBody = await buffer(req);
 
   // Verify if it's a valid event
+  let event;
+
   try {
-    const event = stripe.webhooks.constructEvent(
-      req.body_raw,
+    event = stripe.webhooks.constructEvent(
+      rawBody,
       req.headers['stripe-signature'],
       process.env.STRIPE_WEBHOOK_SECRET
     );
@@ -89,6 +92,14 @@ export default async function handler(req, res) {
     res.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
+
+  // Verify if it's the right event
+  if (event.type != 'checkout.session.completed') {
+    res.status(400).send('Invalid event type');
+    return;
+  }
+
+  const data = event.data.object;
 
   // Check if purchase contains any of the specified product IDs
   const isValidPurchase = await validatePurchase(data.id);
