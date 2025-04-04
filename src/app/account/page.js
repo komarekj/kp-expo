@@ -6,6 +6,7 @@ import Confetti from 'react-confetti';
 import RotateLoader from "react-spinners/ClipLoader";
 
 import CouponPreview from "../components/CouponPreview"
+import PromoPreview from "../components/PromoPreview"
 import CouponDetail from "../components/CouponDetails"
 
 export default function Page() {
@@ -141,7 +142,7 @@ export default function Page() {
 
       {premiumCoupons.length > 0 && (
         <div className="mb-5">
-          <h2 className="text-white text-base font-bold mb-1 text-center">Premium Partners</h2>
+          <h2 className="text-white text-base font-bold mb-1 text-center">Discount Vouchers</h2>
           <div className="flex flex-col gap-1.5">
             {premiumCoupons.map((coupon) => (
               <CouponPreview coupon={coupon} key={coupon._id} handleClick={() => handleCouponClick(coupon)} />
@@ -152,10 +153,10 @@ export default function Page() {
 
       {standardCoupons.length > 0 && (
         <div className="mb-5">
-          <h2 className="text-white text-base font-bold mb-1 text-center">Official Partners</h2>
+          <h2 className="text-white text-base font-bold mb-1 text-center">Exclusive Promotions</h2>
           <div className="flex flex-col gap-1.5">
             {standardCoupons.map((coupon) => (
-              <CouponPreview coupon={coupon} key={coupon._id} handleClick={() => handleCouponClick(coupon)} />
+              <PromoPreview coupon={coupon} key={coupon._id} />
             ))}
           </div>
         </div>
