@@ -2,7 +2,7 @@
 import {useEffect} from 'react';
 import { useRouter } from 'next/navigation';
 
-const STRIPE_URL = 'https://buy.stripe.com/bIYg2u78I7Ze0TK002';
+const STRIPE_URL = 'https://buy.stripe.com/cN23fI3WwgvK1XO28b';
 
 export default function Home() {
   const router = useRouter();
