@@ -115,7 +115,7 @@ export default async function handler(req, res) {
   // Check for duplicates
   const isDuplicate = await checkDuplicate(data.id, db);
   if (isDuplicate) {
-    res.status(400).send('Duplicate event');
+    res.status(200).send('Duplicate event');
     return;
   }
 
