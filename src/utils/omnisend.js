@@ -23,7 +23,7 @@ const sendRequest = async (path, params, method = 'POST') => {
 export const signupUser = async (email, userId) => {
   const params = {
     sendWelcomeEmail: false,
-    tags: ['expo-membership'],
+    tags: ['expo-membership', 'expo-membership-signup'],
     identifiers: [
       {
         type: 'email',
